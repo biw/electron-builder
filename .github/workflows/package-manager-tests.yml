@@ -1,0 +1,58 @@
+name: Package Manager Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  HUSKY: 0 # Bypass husky commit hook for CI
+
+permissions:
+  contents: read
+
+jobs:
+  test-pnpm:
+    name: pnpm workspace tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm
+
+      - name: Run pnpm workspace tests
+        run: pnpm ci:test -- --grep "pnpm"
+
+  test-yarn-pnp:
+    name: yarn PnP workspace tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm
+
+      - name: Run yarn PnP workspace tests
+        run: pnpm ci:test -- --grep "yarn berry pnp"
+
+  test-yarn-berry:
+    name: yarn Berry workspace tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm
+
+      - name: Run yarn Berry workspace tests
+        run: pnpm ci:test -- --grep "yarn berry"

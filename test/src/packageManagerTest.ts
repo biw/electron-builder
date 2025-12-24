@@ -163,6 +163,45 @@ test("yarn berry multi-package workspace", ({ expect }) =>
     }
   ))
 
+// yarn berry PnP workspace (Plug'n'Play mode - no node_modules)
+test("yarn berry pnp workspace", ({ expect }) =>
+  assertPack(
+    expect,
+    "test-app-yarn-pnp-workspace",
+    {
+      targets: linuxDirTarget,
+      projectDir: "packages/app",
+    },
+    {
+      storeDepsLockfileSnapshot: true,
+      packed: context => verifyAsarFileTree(expect, context.getResources(Platform.LINUX)),
+      projectDirCreated: async projectDir => {
+        const appPkg = path.join(projectDir, "packages", "app")
+        const libPkg = path.join(projectDir, "packages", "lib")
+
+        await Promise.all([
+          modifyPackageJson(projectDir, data => {
+            data.packageManager = yarnBerryVersion
+          }),
+          modifyPackageJson(appPkg, data => {
+            data.dependencies = {
+              lib: "workspace:*",
+              "is-bigint": "1.1.0",
+            }
+            data.devDependencies = {
+              electron: ELECTRON_VERSION,
+            }
+          }),
+          modifyPackageJson(libPkg, data => {
+            data.dependencies = {
+              "left-pad": "1.3.0",
+            }
+          }),
+        ])
+      },
+    }
+  ))
+
 // Test for pnpm package manager
 const pnpmVersion = "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
 

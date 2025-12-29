@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/pnpm
 
+      - name: Compile packages
+        run: pnpm compile
+
       - name: Run pnpm workspace tests
         run: pnpm ci:test -- --grep "pnpm"
 
@@ -40,6 +43,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/pnpm
 
+      - name: Compile packages
+        run: pnpm compile
+
       - name: Run yarn PnP workspace tests
         run: pnpm ci:test -- --grep "yarn berry pnp"
 
@@ -53,6 +59,9 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/pnpm
+
+      - name: Compile packages
+        run: pnpm compile
 
       - name: Run yarn Berry workspace tests
         run: pnpm ci:test -- --grep "yarn berry"

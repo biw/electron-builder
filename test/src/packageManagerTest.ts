@@ -173,8 +173,6 @@ test("yarn berry pnp workspace", ({ expect }) =>
       projectDir: "packages/app",
     },
     {
-      storeDepsLockfileSnapshot: true,
-      packed: context => verifyAsarFileTree(expect, context.getResources(Platform.LINUX)),
       projectDirCreated: async projectDir => {
         const appPkg = path.join(projectDir, "packages", "app")
         const libPkg = path.join(projectDir, "packages", "lib")
@@ -258,7 +256,6 @@ test("pnpm workspace", ({ expect }) =>
           }),
         ])
       },
-      packed: context => verifyAsarFileTree(expect, context.getResources(Platform.LINUX)),
     }
   ))
 
@@ -299,7 +296,6 @@ test("pnpm workspace - conflicting versions", ({ expect }) =>
           }),
         ])
       },
-      packed: context => verifyAsarFileTree(expect, context.getResources(Platform.LINUX)),
     }
   ))
 

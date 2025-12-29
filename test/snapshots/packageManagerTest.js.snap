@@ -862,6 +862,260 @@ exports[`pnpm 2`] = `
 }
 `;
 
+exports[`pnpm workspace - conflicting versions 1`] = `
+{
+  "linux": [],
+}
+`;
+
+exports[`pnpm workspace - conflicting versions 2`] = `
+{
+  "files": {
+    "index.js": {
+      "offset": "14331",
+      "size": 29,
+    },
+    "node_modules": {
+      "files": {
+        "has-bigints": {
+          "files": {
+            ".nycrc": {
+              "offset": "0",
+              "size": 139,
+            },
+            "LICENSE": {
+              "offset": "139",
+              "size": 1071,
+            },
+            "index.js": {
+              "offset": "1210",
+              "size": 374,
+            },
+            "package.json": {
+              "offset": "1584",
+              "size": 1166,
+            },
+            "tsconfig.json": {
+              "offset": "2750",
+              "size": 123,
+            },
+          },
+        },
+        "left-pad": {
+          "files": {
+            "COPYING": {
+              "offset": "2873",
+              "size": 502,
+            },
+            "index.js": {
+              "offset": "3375",
+              "size": 1469,
+            },
+            "package.json": {
+              "offset": "4844",
+              "size": 466,
+            },
+            "perf": {
+              "files": {
+                "O(n).js": {
+                  "offset": "5310",
+                  "size": 241,
+                },
+                "es6Repeat.js": {
+                  "offset": "5551",
+                  "size": 216,
+                },
+                "perf.js": {
+                  "offset": "5767",
+                  "size": 1442,
+                },
+              },
+            },
+            "test.js": {
+              "offset": "7209",
+              "size": 4005,
+            },
+          },
+        },
+        "lib": {
+          "files": {
+            ".yarnrc.yml": {
+              "offset": "11214",
+              "size": 24,
+            },
+            "index.js": {
+              "offset": "11238",
+              "size": 42,
+            },
+            "node_modules": {
+              "files": {
+                "is-bigint": {
+                  "files": {
+                    ".eslintignore": {
+                      "offset": "11419",
+                      "size": 10,
+                    },
+                    ".nycrc": {
+                      "offset": "11429",
+                      "size": 139,
+                    },
+                    "LICENSE": {
+                      "offset": "11568",
+                      "size": 1071,
+                    },
+                    "index.js": {
+                      "offset": "12639",
+                      "size": 737,
+                    },
+                    "package.json": {
+                      "offset": "13376",
+                      "size": 955,
+                    },
+                  },
+                },
+              },
+            },
+            "package.json": {
+              "offset": "11280",
+              "size": 139,
+            },
+          },
+        },
+      },
+    },
+    "package.json": {
+      "offset": "14360",
+      "size": 168,
+    },
+  },
+}
+`;
+
+exports[`pnpm workspace 1`] = `
+{
+  "linux": [],
+}
+`;
+
+exports[`pnpm workspace 2`] = `
+{
+  "files": {
+    "index.js": {
+      "offset": "14958",
+      "size": 29,
+    },
+    "node_modules": {
+      "files": {
+        "has-bigints": {
+          "files": {
+            ".nycrc": {
+              "offset": "0",
+              "size": 139,
+            },
+            "LICENSE": {
+              "offset": "139",
+              "size": 1071,
+            },
+            "index.js": {
+              "offset": "1210",
+              "size": 374,
+            },
+            "package.json": {
+              "offset": "1584",
+              "size": 1166,
+            },
+            "tsconfig.json": {
+              "offset": "2750",
+              "size": 123,
+            },
+          },
+        },
+        "is-bigint": {
+          "files": {
+            ".nycrc": {
+              "offset": "2873",
+              "size": 139,
+            },
+            "LICENSE": {
+              "offset": "3012",
+              "size": 1071,
+            },
+            "index.js": {
+              "offset": "4083",
+              "size": 844,
+            },
+            "package.json": {
+              "offset": "4927",
+              "size": 1397,
+            },
+            "tsconfig.json": {
+              "offset": "6324",
+              "size": 114,
+            },
+          },
+        },
+        "left-pad": {
+          "files": {
+            "COPYING": {
+              "offset": "6438",
+              "size": 502,
+            },
+            "index.js": {
+              "offset": "6940",
+              "size": 1469,
+            },
+            "package.json": {
+              "offset": "8409",
+              "size": 466,
+            },
+            "perf": {
+              "files": {
+                "O(n).js": {
+                  "offset": "8875",
+                  "size": 241,
+                },
+                "es6Repeat.js": {
+                  "offset": "9116",
+                  "size": 216,
+                },
+                "perf.js": {
+                  "offset": "9332",
+                  "size": 1442,
+                },
+              },
+            },
+            "test.js": {
+              "offset": "10774",
+              "size": 4005,
+            },
+          },
+        },
+        "lib": {
+          "files": {
+            ".yarnrc.yml": {
+              "offset": "14779",
+              "size": 24,
+            },
+            "index.js": {
+              "offset": "14803",
+              "size": 42,
+            },
+            "package.json": {
+              "offset": "14845",
+              "size": 113,
+            },
+          },
+        },
+      },
+    },
+    "package.json": {
+      "offset": "14987",
+      "size": 168,
+    },
+  },
+}
+`;
+
 exports[`yarn 1`] = `
 {
   "linux": [],
@@ -1124,6 +1378,131 @@ exports[`yarn berry multi-package workspace 2`] = `
     "package.json": {
       "offset": "28051",
       "size": 321,
+    },
+  },
+}
+`;
+
+exports[`yarn berry pnp workspace 1`] = `
+{
+  "linux": [],
+}
+`;
+
+exports[`yarn berry pnp workspace 2`] = `
+{
+  "files": {
+    "index.js": {
+      "offset": "14958",
+      "size": 54,
+    },
+    "node_modules": {
+      "files": {
+        "has-bigints": {
+          "files": {
+            ".nycrc": {
+              "offset": "0",
+              "size": 139,
+            },
+            "LICENSE": {
+              "offset": "139",
+              "size": 1071,
+            },
+            "index.js": {
+              "offset": "1210",
+              "size": 374,
+            },
+            "package.json": {
+              "offset": "1584",
+              "size": 1166,
+            },
+            "tsconfig.json": {
+              "offset": "2750",
+              "size": 123,
+            },
+          },
+        },
+        "is-bigint": {
+          "files": {
+            ".nycrc": {
+              "offset": "2873",
+              "size": 139,
+            },
+            "LICENSE": {
+              "offset": "3012",
+              "size": 1071,
+            },
+            "index.js": {
+              "offset": "4083",
+              "size": 844,
+            },
+            "package.json": {
+              "offset": "4927",
+              "size": 1397,
+            },
+            "tsconfig.json": {
+              "offset": "6324",
+              "size": 114,
+            },
+          },
+        },
+        "left-pad": {
+          "files": {
+            "COPYING": {
+              "offset": "6438",
+              "size": 502,
+            },
+            "index.js": {
+              "offset": "6940",
+              "size": 1469,
+            },
+            "package.json": {
+              "offset": "8409",
+              "size": 466,
+            },
+            "perf": {
+              "files": {
+                "O(n).js": {
+                  "offset": "8875",
+                  "size": 241,
+                },
+                "es6Repeat.js": {
+                  "offset": "9116",
+                  "size": 216,
+                },
+                "perf.js": {
+                  "offset": "9332",
+                  "size": 1442,
+                },
+              },
+            },
+            "test.js": {
+              "offset": "10774",
+              "size": 4005,
+            },
+          },
+        },
+        "lib": {
+          "files": {
+            ".yarnrc.yml": {
+              "offset": "14779",
+              "size": 24,
+            },
+            "index.js": {
+              "offset": "14803",
+              "size": 42,
+            },
+            "package.json": {
+              "offset": "14845",
+              "size": 113,
+            },
+          },
+        },
+      },
+    },
+    "package.json": {
+      "offset": "15012",
+      "size": 172,
     },
   },
 }

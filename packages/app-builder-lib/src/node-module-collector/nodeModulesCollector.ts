@@ -110,7 +110,7 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
             return true
           }
 
-          if (error.message?.includes("Unexpected end of JSON input")) {
+          if (error.message?.includes("Unexpected end of JSON input") || error.message?.includes("Unterminated string in JSON")) {
             log.debug(fields, "JSON parse error in dependency tree, retrying")
             return true
           }
@@ -266,6 +266,26 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
       })
 
       let stderr = ""
+      let exitCode: number | null = null
+      let streamFinished = false
+      let childExited = false
+
+      const tryComplete = () => {
+        if (!streamFinished || !childExited) {
+          return
+        }
+        // https://github.com/npm/npm/issues/17624
+        const shouldIgnore = exitCode === 1 && "npm" === execName.toLowerCase() && args.includes("list")
+        if (shouldIgnore) {
+          log.debug(null, "`npm list` returned non-zero exit code, but it MIGHT be expected (https://github.com/npm/npm/issues/17624). Check stderr for details.")
+        }
+        if (stderr.length > 0) {
+          log.debug({ stderr }, "note: there was node module collector output on stderr")
+        }
+        const shouldResolve = exitCode === 0 || shouldIgnore
+        return shouldResolve ? resolve() : reject(new Error(`Node module collector process exited with code ${exitCode}:\n${stderr}`))
+      }
+
       child.stdout.pipe(outStream)
       child.stderr.on("data", chunk => {
         stderr += chunk.toString()
@@ -274,18 +294,17 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
         reject(new Error(`Node module collector spawn failed: ${err.message}`))
       })
 
+      // Wait for the write stream to fully flush before resolving
+      // This prevents race conditions where the file is read before all data is written
+      outStream.on("finish", () => {
+        streamFinished = true
+        tryComplete()
+      })
+
       child.on("close", code => {
-        outStream.close()
-        // https://github.com/npm/npm/issues/17624
-        const shouldIgnore = code === 1 && "npm" === execName.toLowerCase() && args.includes("list")
-        if (shouldIgnore) {
-          log.debug(null, "`npm list` returned non-zero exit code, but it MIGHT be expected (https://github.com/npm/npm/issues/17624). Check stderr for details.")
-        }
-        if (stderr.length > 0) {
-          log.debug({ stderr }, "note: there was node module collector output on stderr")
-        }
-        const shouldResolve = code === 0 || shouldIgnore
-        return shouldResolve ? resolve() : reject(new Error(`Node module collector process exited with code ${code}:\n${stderr}`))
+        exitCode = code
+        childExited = true
+        tryComplete()
       })
     })
   }

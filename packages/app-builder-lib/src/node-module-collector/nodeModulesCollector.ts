@@ -59,7 +59,7 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
       check: log.isDebugEnabled,
     })
 
-    await this._getNodeModules(hoisterResult.dependencies, this.nodeModules)
+    await this._getNodeModules(hoisterResult.dependencies, this.nodeModules, new Set())
     log.debug({ packageName, depCount: this.nodeModules.length }, "node modules collection complete")
 
     return this.nodeModules
@@ -192,12 +192,19 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
     return node
   }
 
-  private async _getNodeModules(dependencies: Set<HoisterResult>, result: NodeModuleInfo[]) {
+  private async _getNodeModules(dependencies: Set<HoisterResult>, result: NodeModuleInfo[], visited: Set<HoisterResult>) {
     if (dependencies.size === 0) {
       return
     }
 
     for (const d of dependencies.values()) {
+      // Prevent infinite recursion from circular dependencies
+      if (visited.has(d)) {
+        log.debug({ name: d.name }, "skipping already visited dependency (circular reference)")
+        continue
+      }
+      visited.add(d)
+
       const reference = [...d.references][0]
       const p = this.allDependencies.get(`${d.name}@${reference}`)?.path
       if (p === undefined) {
@@ -220,7 +227,7 @@ export abstract class NodeModulesCollector<ProdDepType extends Dependency<ProdDe
       result.push(node)
       if (d.dependencies.size > 0) {
         node.dependencies = []
-        await this._getNodeModules(d.dependencies, node.dependencies)
+        await this._getNodeModules(d.dependencies, node.dependencies, visited)
       }
     }
     result.sort((a, b) => a.name.localeCompare(b.name))

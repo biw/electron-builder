@@ -789,10 +789,6 @@ export async function verifyAsarFileTree(expect: ExpectStatic, resourceDir: stri
       if (value.integrity) {
         delete value.integrity
       }
-      // Exclude offset as it changes whenever any file size in the archive changes
-      if (name === "offset") {
-        return undefined
-      }
       return value
     })
   )

@@ -1,0 +1,53 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  HUSKY: 0 # Bypass husky commit hook for CI
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm
+
+      - name: Compile TypeScript
+        run: pnpm compile
+
+      - name: Prepare packages for GitHub Packages
+        run: node scripts/prepare-github-packages.js
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@biw:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish packages to GitHub Packages
+        run: |
+          for pkg in packages/*/; do
+            if [ -f "$pkg/package.json" ]; then
+              pkg_name=$(node -p "require('./$pkg/package.json').name")
+              if [[ "$pkg_name" == @biw/* ]]; then
+                echo "Publishing $pkg_name..."
+                cd "$pkg"
+                npm publish --access public || echo "Failed to publish $pkg_name (may already exist)"
+                cd - > /dev/null
+              fi
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

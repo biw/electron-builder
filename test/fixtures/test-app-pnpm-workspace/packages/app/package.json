@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "private": true,
+  "dependencies": {
+    "lib": "workspace:*"
+  },
   "build": {
     "electronVersion": "35.7.5",
     "appId": "org.electron-builder.pnpmTestApp",

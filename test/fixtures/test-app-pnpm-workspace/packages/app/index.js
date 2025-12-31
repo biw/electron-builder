@@ -1,1 +1,2 @@
-console.log("pnpm test app")
+const lib = require("lib")
+console.log("pnpm test app", lib.hello())

@@ -1,9 +1,10 @@
 name: Publish to GitHub Packages
 
 on:
-  push:
-    branches:
-      - master
+  # Manual trigger - run from this branch, publishes content from master
+  # Note: Schedule triggers only work from the default branch (master),
+  # so we use workflow_dispatch to keep master clean of extra commits
+  workflow_dispatch:
 
 env:
   HUSKY: 0 # Bypass husky commit hook for CI
@@ -17,8 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout code repository
+      - name: Checkout master branch
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: master
 
       - name: Install dependencies
         uses: ./.github/actions/pnpm
@@ -27,7 +30,70 @@ jobs:
         run: pnpm compile
 
       - name: Prepare packages for GitHub Packages
-        run: node scripts/prepare-github-packages.js
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
+
+          const packagesDir = path.join(process.cwd(), 'packages');
+          const shortHash = execSync('git rev-parse --short HEAD').toString().trim();
+
+          // First pass: build mapping of package names and versions
+          const packageInfoMap = new Map();
+          const packageDirs = fs.readdirSync(packagesDir).filter(dir => {
+            const packageJsonPath = path.join(packagesDir, dir, 'package.json');
+            return fs.existsSync(packageJsonPath);
+          });
+
+          for (const dir of packageDirs) {
+            const packageJsonPath = path.join(packagesDir, dir, 'package.json');
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+            const originalName = packageJson.name;
+
+            if (packageJson.private || originalName.includes('test')) continue;
+
+            const scopedName = originalName.startsWith('@')
+              ? `@biw/${originalName.split('/')[1]}`
+              : `@biw/${originalName}`;
+
+            const newVersion = `${packageJson.version}_${shortHash}`;
+            packageInfoMap.set(originalName, { scopedName, newVersion });
+          }
+
+          console.log('Package mappings:');
+          for (const [orig, info] of packageInfoMap) {
+            console.log(`  ${orig} -> ${info.scopedName} @ ${info.newVersion}`);
+          }
+
+          // Second pass: update package.json files
+          for (const dir of packageDirs) {
+            const packageJsonPath = path.join(packagesDir, dir, 'package.json');
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+            if (packageJson.private || packageJson.name.includes('test')) continue;
+
+            const info = packageInfoMap.get(packageJson.name);
+            packageJson.name = info.scopedName;
+            packageJson.version = info.newVersion;
+            packageJson.publishConfig = { registry: 'https://npm.pkg.github.com', access: 'public' };
+
+            // Update workspace dependencies
+            for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
+              if (!packageJson[depType]) continue;
+              for (const [depName, depVersion] of Object.entries(packageJson[depType])) {
+                if (packageInfoMap.has(depName)) {
+                  const depInfo = packageInfoMap.get(depName);
+                  delete packageJson[depType][depName];
+                  packageJson[depType][depInfo.scopedName] = depVersion === 'workspace:*' ? depInfo.newVersion : depVersion;
+                }
+              }
+            }
+
+            fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
+            console.log(`Updated ${dir}`);
+          }
+          EOF
 
       - name: Configure npm for GitHub Packages
         run: |

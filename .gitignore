@@ -11,7 +11,7 @@ node_modules
 
 .DS_Store
 
-out/
+
 /test/test-report.xml
 
 /packages/dmg-builder/vendor/

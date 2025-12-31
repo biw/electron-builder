@@ -1,0 +1,3 @@
+export declare function resolveModule<T>(type: string | undefined, name: string): Promise<T>;
+export declare function resolveFunction<T>(type: string | undefined, executor: T | string, name: string, projectDir?: string): Promise<T>;
+export { resolveFromProject, moduleExistsInProject } from "./projectModuleResolver";

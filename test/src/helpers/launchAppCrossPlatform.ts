@@ -112,15 +112,11 @@ export async function launchAndWaitForQuit({
       console.log(line)
       stdoutChunks.push(line)
       const match = line.match(versionRegex)
-      if (match) {
+      if (match && !version) {
+        // Only capture the first version printed (ignore subsequent prints from update restarts)
         version = match[1].trim()
         console.log(`Found Version in console logs: ${version}`)
-        if (expectedVersion && version !== expectedVersion) {
-          reject(new Error(`Expected version ${expectedVersion}, got ${version}`))
-        } else {
-          resolved = true
-          resolveResult(0)
-        }
+        // Don't resolve here - wait for the process to exit to ensure full update cycle completes
       }
     })
 
@@ -140,7 +136,12 @@ export async function launchAndWaitForQuit({
     child.on("exit", code => {
       if (!resolved) {
         resolved = true
-        resolveResult(code)
+        // Check version expectation after process exits (ensures full update cycle completes)
+        if (expectedVersion && version !== expectedVersion) {
+          reject(new Error(`Expected version ${expectedVersion}, got ${version}`))
+        } else {
+          resolveResult(code)
+        }
       }
     })
 

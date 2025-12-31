@@ -10,6 +10,7 @@ import { assertPack, modifyPackageJson, PackedContext } from "../helpers/packTes
 import { ELECTRON_VERSION } from "../helpers/testConfig"
 import { NEW_VERSION_NUMBER, OLD_VERSION_NUMBER, writeUpdateConfig } from "../helpers/updaterTestUtil"
 import { execFileSync, execSync } from "child_process"
+import http from "http"
 import { homedir } from "os"
 import { DebUpdater, PacmanUpdater, RpmUpdater } from "electron-updater"
 
@@ -346,9 +347,35 @@ async function handleCleanupPerOS({ target }: { target: string }) {
   }
 }
 
+async function waitForServer(port: number, maxAttempts = 30, delayMs = 100): Promise<void> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const req = http.get(`http://127.0.0.1:${port}/`, res => {
+          res.resume() // Consume response to free up memory
+          resolve()
+        })
+        req.on("error", reject)
+        req.setTimeout(1000, () => {
+          req.destroy()
+          reject(new Error("Timeout"))
+        })
+      })
+      log.debug({ port, attempt }, "HTTP server is ready")
+      return
+    } catch {
+      await new Promise(resolve => setTimeout(resolve, delayMs))
+    }
+  }
+  throw new Error(`HTTP server on port ${port} did not become ready after ${maxAttempts} attempts`)
+}
+
 async function runTestWithinServer(doTest: (rootDirectory: string, updateConfigPath: string) => Promise<void>) {
   const tmpDir = new TmpDir("blackbox-update-test")
   const root = await tmpDir.getTempDir({ prefix: "server-root" })
+
+  // Ensure the root directory exists before starting the HTTP server
+  await fs.ensureDir(root)
 
   // 65535 is the max port number
   // Math.random() / Math.random() is used to avoid zero
@@ -356,6 +383,9 @@ async function runTestWithinServer(doTest: (rootDirectory: string, updateConfigP
   const port = 8000 + Math.floor(((Math.random() / Math.random()) * 1000) % 65535)
   const serverBin = await getBinFromUrl("ran-0.1.3", "ran-0.1.3.7z", "imfA3LtT6umMM0BuQ29MgO3CJ9uleN5zRBi3sXzcTbMOeYZ6SQeN7eKr3kXZikKnVOIwbH+DDO43wkiR/qTdkg==")
   const httpServerProcess = doSpawn(path.join(serverBin, process.platform, "ran"), [`-root=${root}`, `-port=${port}`, "-gzip=false", "-listdir=true"])
+
+  // Wait for the HTTP server to be ready before proceeding
+  await waitForServer(port)
 
   const updateConfig = await writeUpdateConfig<GenericServerOptions>({
     provider: "generic",

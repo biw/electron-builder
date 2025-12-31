@@ -26,6 +26,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/pnpm
 
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Compile packages
         run: pnpm compile
 

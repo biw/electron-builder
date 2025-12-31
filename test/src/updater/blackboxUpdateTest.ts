@@ -374,6 +374,9 @@ async function runTestWithinServer(doTest: (rootDirectory: string, updateConfigP
   const tmpDir = new TmpDir("blackbox-update-test")
   const root = await tmpDir.getTempDir({ prefix: "server-root" })
 
+  // Ensure the root directory exists before starting the HTTP server
+  await fs.ensureDir(root)
+
   // 65535 is the max port number
   // Math.random() / Math.random() is used to avoid zero
   // Math.floor(((Math.random() / Math.random()) * 1000) % 65535) is used to avoid port number collision
